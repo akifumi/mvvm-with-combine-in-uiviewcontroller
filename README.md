@@ -1,2 +1,2 @@
-# mvvm-with-combine-uiviewcontroller
+# MVVM with Combine in UIViewController
 MVVM with Combine in UIViewController
