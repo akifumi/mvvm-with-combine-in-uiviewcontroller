@@ -9,6 +9,8 @@
 import UIKit
 
 class ViewController: UIViewController {
+    @IBOutlet private var statusLabel: UILabel!
+    @IBOutlet private var textField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
