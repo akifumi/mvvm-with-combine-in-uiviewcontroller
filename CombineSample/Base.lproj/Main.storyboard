@@ -33,6 +33,9 @@
                                         <rect key="frame" x="0.0" y="20.5" width="382" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
+                                        <connections>
+                                            <outlet property="delegate" destination="BYZ-38-t0r" id="L7f-au-erC"/>
+                                        </connections>
                                     </textField>
                                 </subviews>
                             </stackView>

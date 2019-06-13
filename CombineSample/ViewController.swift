@@ -59,11 +59,44 @@ class ViewController: UIViewController {
     @IBOutlet private var statusLabel: UILabel!
     @IBOutlet private var textField: UITextField!
 
+    private let viewModel = ViewModel()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        bind()
+        viewModel.viewDidLoad()
     }
 
-
+    private func bind() {
+        _ = viewModel.usernameSubject
+//            .subscribe(on: RunLoop.main)
+            .sink(receiveCompletion: { (completion) in
+                print("validatedUsername.receiveCompletion: \(completion)")
+            }, receiveValue: { [weak self] (value) in
+                print("validatedUsername.receiveValue: \(value ?? "nil")")
+                self?.textField.text = value
+            })
+        _ = viewModel.statusSubject
+//            .subscribe(on: RunLoop.main)
+            .sink(receiveCompletion: { (completion) in
+                print("viewModel.statusSubject.receiveCompletion: \(completion)")
+            }, receiveValue: { [weak self] (value) in
+                print("viewModel.statusSubject.receiveValue: \(value)")
+                guard let self = self else { return }
+                self.statusLabel.text = value.content
+                self.statusLabel.textColor = value.color
+            })
+    }
 }
 
+extension ViewController: UITextFieldDelegate {
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let text = textField.text
+            .flatMap({ $0 as NSString })?
+            .replacingCharacters(in: range, with: string)
+        viewModel.usernameSubject.send(text)
+
+        return false
+    }
+}
