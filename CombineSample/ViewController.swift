@@ -14,11 +14,13 @@ final class ViewModel {
         let content: String
         let color: UIColor
     }
-    let statusSubject = CurrentValueSubject<StatusText, Never>(StatusText(content: "NG", color: .red))
+    @Published
+    var status: StatusText = StatusText(content: "NG", color: .red)
 
-    let usernameSubject = CurrentValueSubject<String?, Never>(nil)
+    @Published
+    var username: String? = nil
     private var validatedUsername: AnyPublisher<String?, Never> {
-        return usernameSubject
+        return $username
             .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .flatMap { (username) -> AnyPublisher<String?, Never> in
@@ -39,7 +41,7 @@ final class ViewModel {
             .eraseToAnyPublisher()
     }
 
-    func viewDidLoad() {
+    init() {
         // Update StatusText
         _ = validatedUsername
             .map { (value) -> StatusText in
@@ -50,8 +52,13 @@ final class ViewModel {
                 }
             }
             .sink { [weak self] (value) in
-                self?.statusSubject.send(value)
+                self?.status = value
             }
+    }
+
+    func viewDidLoad(username: String?) {
+        // error: Segmentation fault: 11. This may be a bug.
+        // self.username = username
     }
 }
 
@@ -64,11 +71,14 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
-        viewModel.viewDidLoad()
+        viewModel.viewDidLoad(username: textField.text)
+
+        // First value
+        viewModel.username = textField.text
     }
 
     private func bind() {
-        _ = viewModel.usernameSubject
+        _ = viewModel.$username
             .subscribe(on: RunLoop.main)
             .sink(receiveCompletion: { (completion) in
                 print("validatedUsername.receiveCompletion: \(completion)")
@@ -76,7 +86,7 @@ class ViewController: UIViewController {
                 print("validatedUsername.receiveValue: \(value ?? "nil")")
                 self?.textField.text = value
             })
-        _ = viewModel.statusSubject
+        _ = viewModel.$status
             .subscribe(on: RunLoop.main)
             .sink(receiveCompletion: { (completion) in
                 print("viewModel.statusSubject.receiveCompletion: \(completion)")
@@ -95,7 +105,7 @@ extension ViewController: UITextFieldDelegate {
         let text = textField.text
             .flatMap({ $0 as NSString })?
             .replacingCharacters(in: range, with: string)
-        viewModel.usernameSubject.send(text)
+        viewModel.username = text
 
         return false
     }
