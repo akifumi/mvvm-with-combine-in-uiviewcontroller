@@ -19,7 +19,7 @@ final class ViewModel {
     let usernameSubject = CurrentValueSubject<String?, Never>(nil)
     private var validatedUsername: AnyPublisher<String?, Never> {
         return usernameSubject
-            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .flatMap { (username) -> AnyPublisher<String?, Never> in
                 Publishers.Future<String?, Never> { (promise) in
