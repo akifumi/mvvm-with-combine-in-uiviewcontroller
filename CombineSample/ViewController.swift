@@ -19,8 +19,8 @@ final class ViewModel {
     let usernameSubject = CurrentValueSubject<String?, Never>(nil)
     private var validatedUsername: AnyPublisher<String?, Never> {
         return usernameSubject
-//            .debounce(for: 0.5, scheduler: RunLoop.main)
-//            .removeDuplicates()
+            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .removeDuplicates()
             .flatMap { (username) -> AnyPublisher<String?, Never> in
                 Publishers.Future<String?, Never> { (promise) in
                     // FIXME: API request
@@ -69,7 +69,7 @@ class ViewController: UIViewController {
 
     private func bind() {
         _ = viewModel.usernameSubject
-//            .subscribe(on: RunLoop.main)
+            .subscribe(on: RunLoop.main)
             .sink(receiveCompletion: { (completion) in
                 print("validatedUsername.receiveCompletion: \(completion)")
             }, receiveValue: { [weak self] (value) in
@@ -77,7 +77,7 @@ class ViewController: UIViewController {
                 self?.textField.text = value
             })
         _ = viewModel.statusSubject
-//            .subscribe(on: RunLoop.main)
+            .subscribe(on: RunLoop.main)
             .sink(receiveCompletion: { (completion) in
                 print("viewModel.statusSubject.receiveCompletion: \(completion)")
             }, receiveValue: { [weak self] (value) in
