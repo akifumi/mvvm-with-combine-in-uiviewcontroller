@@ -43,7 +43,7 @@ final class ViewModel {
 
     private var cancellables: [AnyCancellable] = []
 
-    init() {
+    func viewWillAppear() {
         // Update StatusText
         let usernameCancellable = validatedUsername
             .map { (value) -> StatusText in
@@ -75,9 +75,16 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
+    }
 
-        // First value
-        viewModel.username = textField.text
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.viewWillAppear()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        viewModel.viewDidDisappear()
+        super.viewDidDisappear(animated)
     }
 
     private func bind() {
