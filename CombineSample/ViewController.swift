@@ -60,11 +60,6 @@ final class ViewModel {
         cancellables = [usernameCancellable]
     }
 
-    func viewDidLoad(username: String?) {
-        // error: Segmentation fault: 11. This may be a bug.
-        // self.username = username
-    }
-
     func viewDidDisappear() {
         cancellables.forEach { $0.cancel() }
         cancellables = []
@@ -80,7 +75,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
-        viewModel.viewDidLoad(username: textField.text)
 
         // First value
         viewModel.username = textField.text
