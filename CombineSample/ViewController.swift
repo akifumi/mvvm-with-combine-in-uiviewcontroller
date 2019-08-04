@@ -41,9 +41,11 @@ final class ViewModel {
             .eraseToAnyPublisher()
     }
 
+    private var cancellables: [AnyCancellable] = []
+
     init() {
         // Update StatusText
-        _ = validatedUsername
+        let usernameCancellable = validatedUsername
             .map { (value) -> StatusText in
                 if let _ = value {
                     return StatusText(content: "OK", color: .green)
@@ -54,11 +56,18 @@ final class ViewModel {
             .sink { [weak self] (value) in
                 self?.status = value
             }
+
+        cancellables = [usernameCancellable]
     }
 
     func viewDidLoad(username: String?) {
         // error: Segmentation fault: 11. This may be a bug.
         // self.username = username
+    }
+
+    func viewDidDisappear() {
+        cancellables.forEach { $0.cancel() }
+        cancellables = []
     }
 }
 
