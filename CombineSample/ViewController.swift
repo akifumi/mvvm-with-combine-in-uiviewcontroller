@@ -24,7 +24,7 @@ final class ViewModel {
             .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .flatMap { (username) -> AnyPublisher<String?, Never> in
-                Publishers.Future<String?, Never> { (promise) in
+                Future<String?, Never> { (promise) in
                     // FIXME: API request
                     guard let username = username else {
                         promise(.success(nil))
