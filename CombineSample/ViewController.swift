@@ -24,7 +24,7 @@ final class ViewModel {
             .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .flatMap { (username) -> AnyPublisher<String?, Never> in
-                Publishers.Future<String?, Never> { (promise) in
+                Future<String?, Never> { (promise) in
                     // FIXME: API request
                     guard let username = username else {
                         promise(.success(nil))
@@ -41,9 +41,11 @@ final class ViewModel {
             .eraseToAnyPublisher()
     }
 
-    init() {
+    private var cancellables: [AnyCancellable] = []
+
+    func viewWillAppear() {
         // Update StatusText
-        _ = validatedUsername
+        let usernameCancellable = validatedUsername
             .map { (value) -> StatusText in
                 if let _ = value {
                     return StatusText(content: "OK", color: .green)
@@ -54,11 +56,13 @@ final class ViewModel {
             .sink { [weak self] (value) in
                 self?.status = value
             }
+
+        cancellables = [usernameCancellable]
     }
 
-    func viewDidLoad(username: String?) {
-        // error: Segmentation fault: 11. This may be a bug.
-        // self.username = username
+    func viewDidDisappear() {
+        cancellables.forEach { $0.cancel() }
+        cancellables = []
     }
 }
 
@@ -71,10 +75,16 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
-        viewModel.viewDidLoad(username: textField.text)
+    }
 
-        // First value
-        viewModel.username = textField.text
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.viewWillAppear()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        viewModel.viewDidDisappear()
+        super.viewDidDisappear(animated)
     }
 
     private func bind() {
